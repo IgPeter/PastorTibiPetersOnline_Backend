@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
+const {changeSubStatus} = require('../helpers/unSubscribe')
 
 
 //Getting the mimetype
@@ -53,6 +54,7 @@ router.post(`/register`, upload.single('avatar'), async (req, res) => {
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 10),
         isAdmin: req.body.isAdmin,
+        country: req.body.country,
         phone: req.body.phone,
         avatar: `${filePath}${fileName}` //http://localhost:3000/public/upload/filename
     })
@@ -66,6 +68,9 @@ router.post(`/register`, upload.single('avatar'), async (req, res) => {
             avatar: user.avatar,
             isAdmin: user.isAdmin,
             id: user.id,
+            country: user.country,
+            isSubscriber: user.isSubscriber,
+            subscription: user.subscription,
             request: {
                 url: 'localhost:3000/api/v1/user',
                 type: 'POST'
@@ -128,6 +133,7 @@ router.post(`/`, upload.single('avatar'), async (req, res) => {
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 10),
         isAdmin: req.body.isAdmin,
+        country: req.body.country,
         phone: req.body.phone,
         avatar: `${filePath}${fileName}` //http://localhost:3000/public/upload/filename
     })
@@ -140,6 +146,7 @@ router.post(`/`, upload.single('avatar'), async (req, res) => {
             phone: user.phone,
             avatar: user.avatar,
             isAdmin: user.isAdmin,
+            dateSubscribed: user.dateSubscribed,
             id: user.id,
             request: {
                 url: 'localhost:3000/api/v1/user',
@@ -158,42 +165,34 @@ res.status(401).json('This admin already exist')
 
 
 //Login
-router.post(`/login`, async (req, res)=> {
-    
-   User.findOne({email: req.body.email}).then(user => {
-        const secret = process.env.SECRET_KEY;
+router.post(`/login`, changeSubStatus, async (req, res)=> {
 
-        if(!user){
-            res.status(404).json('User does not exist')
-        } 
-        
-        if (bcrypt.compareSync(req.body.password, user.password)){
+    const secret = process.env.SECRET_KEY;
+    const user = await User.findOne({email: req.body.email})
 
-            const token = jwt.sign({
+    if(!user){
+        return res.status(404).json('The user was not found');
+    }
+            
+    if(user && bcrypt.compareSync(req.body.password, user.password)){
+        const token = jwt.sign({
                 userId: user.id,
                 isAdmin: user.isAdmin,
                 isSubscriber: user.isSubscriber
             }, secret , {expiresIn: '1d'})
-            
+                
             res.status(200).json({
-                response: "user authenticated",
-                user: user.email,
-                token: token
-            });
-
-        }else{
-            res.status(401).json('password is wrong')
-        }
-        
-  }).catch(err => {
-        res.status(400).json(err);
+                    user: user,
+                    token: token
+                });    
+    }else{
+        res.status(401).json('password is wrong');
+    }      
   })
-    
-})
 
 //GET all users
 router.get(`/`, async (req, res) => {
-    await User.find().select('-password').then(user=>{
+    await User.find().then(user=>{
         const response = {
             count: user.length,
             request: {
@@ -206,7 +205,11 @@ router.get(`/`, async (req, res) => {
                     name: singleUser.firstName + ' ' + singleUser.lastName,
                     email: singleUser.email,
                     phone: singleUser.phone,
+                    image: singleUser.image,
                     avatar: singleUser.avatar,
+                    country: singleUser.country,
+                    isSubscriber: singleUser.isSubscriber,
+                    subscription: singleUser.subscription,
                     id: user.id                  
                 }
             })
@@ -226,8 +229,12 @@ router.get(`/:id`, async (req, res) => {
         const response ={
             name: user.firstName + ' ' + user.lastName,
             phone: user.phone,
+            email: user.email,
             avatar: user.avatar,
-            id : user,id,
+            id : user.id,
+            isSubscriber: user.isSubscriber,
+            subscription: user.subscription,
+            country: user.country,
             request: {
                 type: "GET",
                 url: "localhost:3000/api/v1/" + user._id
@@ -241,6 +248,16 @@ router.get(`/:id`, async (req, res) => {
         })
     })
 
+})
+
+//Getting billers public keys
+router.get(`/biller/paystack`, (req, res)=> {
+    const paystackPublicKeys = process.env.PAYSTACK_PUBLIC_KEY
+    const paystackSecretKeys = process.env.PAYSTACK_SECRET_KEY
+
+    res.json({
+        paystackPublicKey: paystackPublicKeys
+    })
 })
 
 router.patch(`/:id`, upload.single('avatar'), async (req, res) => {
@@ -262,9 +279,7 @@ router.patch(`/:id`, upload.single('avatar'), async (req, res) => {
         res.status(500).json({
             error : err
         })
-    });
-    
-
+    })  
 })
 
 //Subscribe a user
@@ -272,78 +287,77 @@ router.patch(`/subscribe/:id`, async (req, res) => {
     const user_id = req.params.id;
     const secret = process.env.SECRET_KEY;
 
-    await User.findByIdAndUpdate(user_id, {isSubscriber: true}, 
-        {lean: true, returnDocument: 'after'}).then(updatedUser => {
+    const {subscription} = req.body;
 
-        const token = jwt.sign({
-            userId: updatedUser.id,
-            isAdmin: updatedUser.isAdmin,
-            isSubscriber: updatedUser.isSubscriber
-        }, secret , {expiresIn: '1d'})
+   try{
+    const updatedUser = await User.findByIdAndUpdate(user_id, 
+        {
+            isSubscriber: true,
+            subscription: subscription
+        }, 
+        {lean: true, returnDocument: 'after'})
 
-        res.status(200).json({
-            message: "User data updated successfully",
-            result:updatedUser.isSubscriber,
-            token: token
-        });
+    if(!updatedUser){
+        res.status(404).json('User not found')
+    }
     
-        }).catch(err => {
-        res.status(400).json({
-            message: "Failed",
-            error: err })
-    })
-
+    const token = jwt.sign({
+        userId: updatedUser.id,
+        isAdmin: updatedUser.isAdmin,
+        isSubscriber: updatedUser.isSubscriber
+    }, secret , {expiresIn: '1d'})
+    
+    res.status(200).json({
+        message: 'User data updated successfully',
+        updatedUser:{
+            name: updatedUser.firstName + " " + updatedUser.lastName,
+            token: token,
+            email: updatedUser.email,
+            avatar: updatedUser.avatar
+           } 
+        })
+}catch(error){
+    console.log(error);
+}
 })
 
-//route for free-trial users
+//setting the free trial
 router.patch(`/freeTrial/:id`, async (req, res) => {
-
     const user_id = req.params.id;
     const secret = process.env.SECRET_KEY;
-    let td = Date.now();
 
-    let date_time = new Date(td);
-    const currentDate = date_time.getDate();
-    const expireDate = currentDate + 7;
+    const {freeTrial} = req.body;
 
-    await User.findByIdAndUpdate({_id: user_id}, {isSubscriber: true},
-         {lean:true, returnDocument: after}).then(updatedUser => {
-            let trialToken;
+   try{
+    const updatedUser = await User.findByIdAndUpdate(user_id, 
+        {
+            isSubscriber: true,
+            subscription: freeTrial
+        }, 
+        {lean: true, returnDocument: 'after'})
 
-            let dateObject = new Date();
-            let hh = dateObject.getHours();
-            let todayDate = dateObject.getDate();
-            let trialDate = dateObject.setDate(todayDate + 7);
-
-            const newDate = (hh + 24) ? dateObject.setDate(todayDate + 1) : todayDate
-
-            if (newDate >= trialDate){
-
-             trialToken = jwt.sign({
-                userId: updatedUser.id,
-                isAdmin: updatedUser.isAdmin,
-                isSubscriber: false
-                }, secret, {expiresIn: '1d'})
-
-            }
-                
-            const token = jwt.sign({
-                userId: updatedUser.id,
-                isAdmin: updatedUser.isAdmin,
-                isSubscriber: updatedUser.isSubscriber          
-            }, secret, {expiresIn: '1d'})
-
-            res.status(200).json({
-                message: "Successful",
-                isSubscriber: updatedUser.isSubscriber,
-                token: token,
-                trialToken: trialToken
-            })
-         }).catch(err => {
-        res.status(400).json({
-            message: "Failed",
-            error: err })
-    })
+    if(!updatedUser){
+        res.status(404).json('User not found')
+    }
+    
+    const token = jwt.sign({
+        userId: updatedUser.id,
+        isAdmin: updatedUser.isAdmin,
+        isSubscriber: updatedUser.isSubscriber
+    }, secret , {expiresIn: '1d'})
+    
+    res.status(200).json({
+        message: 'User data updated successfully',
+        updatedUser:{
+            name: updatedUser.firstName + " " + updatedUser.lastName,
+            token: token,
+            email: updatedUser.email,
+            avatar: updatedUser.avatar
+           } 
+        })
+}catch(error){
+    console.log(error);
+}
 })
 
 router.delete(`/:id`, async (req, res) => {

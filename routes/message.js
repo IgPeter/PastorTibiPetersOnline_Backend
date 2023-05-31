@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const mongoose = require('mongoose');
 const {Message} = require('../models/message');
+const {Category} = require('../models/category');
 const multer = require('multer');
+const {authJwt} = require('../helpers/jwt'); 
 
 //Getting the mimetype
 const FILE_TYPE = {
@@ -59,10 +61,8 @@ const cpUpload = fileUpload.fields([{ name: 'message', maxCount: 1 }, { name: 'i
 
 //Contains all the message related routes
 router.post(`/`, cpUpload, async (req, res) => {
-    
     const imageFilePath = `${req.protocol}://${req.get('host')}/public/upload/message/images`;
     let filePath;
-    
     const image_fileName = req.files.image[0].filename;
     const message_fileName = req.files.message[0].filename;
     const msExt = FILE_TYPE[req.files.message[0].mimetype];
@@ -84,42 +84,55 @@ router.post(`/`, cpUpload, async (req, res) => {
         title: req.body.title,
         description: req.body.description,
         contentType: req.body.contentType,
+        category: req.body.category,
         image: `${imageFilePath}/${image_fileName}`,
-        message: `${filePath}/${message_fileName}`,
-        isFeatured: req.body.isFeatured
+        message: `${filePath}/${message_fileName}`
     })
 
     await message.save().then(message => {
-        res.status(200).json({
+       return res.status(200).json({
             notification: "message was created successfully",
             result: message
         })
     }).catch(err => {
-            res.status(400).json({
+             res.status(400).json({
                 response: "couldn't create message",
                 error: err})
         })
+})
+
+router.get(`/:id`, async (req, res) => {
+
+    const singleMessage = await Message.findById(req.params.id).populate('category')
+
+    if(!singleMessage){
+        res.status(404).send('message not found')
+    }
+
+    res.status(200).json({success: singleMessage})
 })
 
 router.get(`/`, async (req, res)=> {
 
     let filter = {}
 
-    if(req.query.contentType){
-        filter = {contentType: req.query.contentType}
+    if(req.query.categories){
+        filter = {category: req.query.categories}
     }
 
-     await Message.find(filter).then(result=>{
+     await Message.find(filter).populate('category').then(result=>{
         const response = {
             count: result.length,
             message: result.map(eachMessage=>{
                 return {
                     _id: eachMessage.id,
                     title: eachMessage.title,
+                    image: eachMessage.image,
                     description: eachMessage.description,
+                    category: eachMessage.category,
+                    message: eachMessage.message,
                     dateCreated: eachMessage.dateCreated,
                     contentType: eachMessage.contentType,
-                    id: eachMessage.id,
                     request: {
                         type: 'GET',
                         Url: 'localhost:3000/api/v1/message'
@@ -150,12 +163,35 @@ router.get(`/featured/:count`, async (req, res) => {
 })
 
 //updating message information
-router.put(`/:id`, async (req, res) => {
+router.patch(`/:id`, cpUpload, async (req, res) => {
+
+    if(Object.entries(req.files) === 0){
+        const imageFilePath = `${req.protocol}://${req.get('host')}/public/upload/message/images`;
+        let filePath;
+        const image_fileName = req.files.image[0].filename;
+        const message_fileName = req.files.message[0].filename;
+        const msExt = FILE_TYPE[req.files.message[0].mimetype];
+
+    if (msExt == 'mp4 audio' || msExt == 'mp3'){
+         filePath = `${req.protocol}://${req.get('host')}/public/upload/message/audioMessages`
+        }
+
+    if (msExt == 'mp4' || msExt == 'mpeg' || msExt == '3gp'){
+         filePath = `${req.protocol}://${req.get('host')}/public/upload/message/videoMessage`
+    }
+
+    if(msExt == 'pdf'){
+         filePath = `${req.protocol}://${req.get('host')}/public/upload/message/books`
+    }
+
+    }
+    
     Message.findByIdAndUpdate(req.params.id, 
     {
         title: req.body.title,
         description: req.body.description,
         contentType: req.body.contentType,
+        category: req.body.category,
         image: req.body.image,
         file: req.body.file
     }, 
@@ -167,8 +203,9 @@ router.put(`/:id`, async (req, res) => {
             title: updatedMessage.title,
             description: updatedMessage.description,
             contentType: updatedMessage.contentType,
-            image: updatedMessage.image,
-            file: updatedMessage.file
+            category: updatedMessage.contentType,
+            image: `${imageFilePath}/${image_fileName}`,
+            message: `${filePath}/${message_fileName}`
         }
 
         res.status(200).json(response);
@@ -183,7 +220,7 @@ router.put(`/:id`, async (req, res) => {
 //deleting message information
 router.delete(`/:id`, async (req, res) => {
         const id = req.params.id;
-        Message.deleteOne({_id : id}).then(deletedMessage => {
+        await Message.deleteOne({_id : id}).then(deletedMessage => {
         res.status(200).json({
             message : 'message deleted successfully',
             result : deletedMessage,
@@ -194,7 +231,7 @@ router.delete(`/:id`, async (req, res) => {
         });
     })
     .catch(err => {
-        res.status(500).json({
+        res.status(404).json({
             error : err
         });
     });

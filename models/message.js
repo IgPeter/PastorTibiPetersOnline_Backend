@@ -7,6 +7,11 @@ const messageSchema = mongoose.Schema({
     contentType: String,
     image: String,
     message: String,
+    category: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Category',
+        required: true
+    },
     isFeatured: {
         type: Boolean,
         default: false

@@ -8,6 +8,13 @@ const userSchema = mongoose.Schema({
     password: {type: String, required: true},
     isSubscriber: {type: Boolean, default: false},
     isAdmin: {type: Boolean, default: false},
+    country: {type: String},
+    subscription: {
+        plan: {type: String}, 
+        desc: {type: String},
+        price: {type: Number},
+        dateSubscribed: {type: Date, required: true}
+    },
     phone: Number,
     avatar: String
 });
