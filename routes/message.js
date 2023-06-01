@@ -49,7 +49,7 @@ const storage = multer.diskStorage({
     },
 
     filename: function (req, file, cb){
-        const fileName = file.originalname.replace(' ','-');
+        const fileName = file.originalname.replace(' ','-').replace('.','-');
       const extension = FILE_TYPE[file.mimetype];
       cb(null, `${fileName}-${Date.now()}.${extension}`)
     }
