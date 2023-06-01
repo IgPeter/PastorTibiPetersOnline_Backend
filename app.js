@@ -21,7 +21,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.options('*', cors());
 
-app.use(authJwt())
+//app.use(authJwt())
 app.use('/public/upload', express.static(__dirname + '/public/upload'));
 app.use(errorHandler);
 
