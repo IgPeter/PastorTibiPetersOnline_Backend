@@ -13,7 +13,8 @@ const userSchema = mongoose.Schema({
         plan: {type: String}, 
         desc: {type: String},
         price: {type: Number},
-        dateSubscribed: {type: Date, required: true}
+        dateSubscribed: {type: Date},
+        numOfDays: {type: Number}
     },
     phone: Number,
     avatar: String

@@ -38,6 +38,7 @@ const storage = multer.diskStorage({
 
 //Used for all users with full user information
 router.post(`/register`, upload.single('avatar'), async (req, res) => {
+    console.log(req.body);
     const existingUser = await User.findOne({email: req.body.email});
 
     if(existingUser){
@@ -53,7 +54,6 @@ router.post(`/register`, upload.single('avatar'), async (req, res) => {
         lastName: req.body.lastName,
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 10),
-        isAdmin: req.body.isAdmin,
         country: req.body.country,
         phone: req.body.phone,
         avatar: `${filePath}${fileName}` //http://localhost:3000/public/upload/filename
@@ -313,7 +313,8 @@ router.patch(`/subscribe/:id`, async (req, res) => {
             name: updatedUser.firstName + " " + updatedUser.lastName,
             token: token,
             email: updatedUser.email,
-            avatar: updatedUser.avatar
+            avatar: updatedUser.avatar,
+            subscription: updatedUser.subscription
            } 
         })
 }catch(error){
