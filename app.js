@@ -37,12 +37,6 @@ mongoose.connect(process.env.CONNECTION_STRING, {
 
 }).then(()=> {
     console.log('connected to pto_db');
-
-    //production
-    var server = app.listen(process.env.PORT || 3000, () => {
-    var port = server.address().port; 
-    console.log('app running at port', port);
-})
 })
 .catch(err=>{
     console.log(err);
@@ -52,3 +46,9 @@ mongoose.connect(process.env.CONNECTION_STRING, {
 /*app.listen(3000, ()=> {
     console.log('server running at localhost://3000');
 })*/
+
+//production
+var server = app.listen(process.env.PORT || 3000, () => {
+    var port = server.address().port; 
+    console.log('app running at port', port);
+})
