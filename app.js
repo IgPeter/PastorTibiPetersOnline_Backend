@@ -16,7 +16,7 @@ const api = process.env.API_URL
 
 //middlewares
 app.use(morgan('tiny'));
-app.use(bodyParser.json());
+app.use(bodyParser.json({limit: '10mb'}));
 
 app.use(cors());
 app.options('*', cors());
