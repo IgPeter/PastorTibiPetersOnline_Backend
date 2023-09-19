@@ -71,7 +71,7 @@ router.post(`/`, cpUpload, async (req, res) => {
          filePath = `${req.protocol}://${req.get('host')}/public/upload/message/audioMessages`
         }
 
-    if (msExt == 'mp4' || msExt == 'mpeg' || msExt == '3gp'){
+    if (msExt == 'mp4 video' || msExt == 'mpeg' || msExt == '3gp'){
          filePath = `${req.protocol}://${req.get('host')}/public/upload/message/videoMessage`
     }
 
