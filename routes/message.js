@@ -13,7 +13,7 @@ const FILE_TYPE = {
     'image/jpg': 'jpg',
     'audio/mp4': 'mp4 audio',
     'audio/mpeg': 'mp3',
-    'video/mp4': 'mp4',
+    'video/mp4': 'mp4 video',
     'video/mpeg': 'mpeg',
     'video/3gp': '3gp',
     'application/pdf': 'pdf',
@@ -71,7 +71,8 @@ router.post(`/`, cpUpload, async (req, res) => {
          filePath = `${req.protocol}://${req.get('host')}/public/upload/message/audioMessages`
         }
 
-    if (msExt == 'mp4 video' || msExt == 'MP4 video' || msExt == 'mpeg' || msExt == '3gp'){
+    if (msExt == 'mp4 video' || msExt == 'MP4 video' || msExt == 'MP4'|| 
+    msExt == 'mp4' || msExt == 'mpeg' || msExt == '3gp'){
          filePath = `${req.protocol}://${req.get('host')}/public/upload/message/videoMessage`
     }
 
