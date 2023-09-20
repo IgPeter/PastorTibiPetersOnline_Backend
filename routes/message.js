@@ -73,7 +73,7 @@ router.post(`/`, cpUpload, async (req, res) => {
         }
 
     if (msExt == 'mp4 video' || msExt == 'MP4 video' || msExt == 'MP4'|| 
-    msExt == 'mp4' || msExt == 'mpeg' || msExt == '3gp' || msExt == 'mkv' || msExt == 'mkv video'){
+    msExt == 'mp4' || msExt == 'mpeg' || msExt == '3gp' || msExt == 'mkv' || msExt == 'MKV File'){
          filePath = `${req.protocol}://${req.get('host')}/public/upload/message/videoMessage`
     }
 
