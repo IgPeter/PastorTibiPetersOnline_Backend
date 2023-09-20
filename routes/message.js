@@ -13,9 +13,10 @@ const FILE_TYPE = {
     'image/jpg': 'jpg',
     'audio/mp4': 'mp4 audio',
     'audio/mpeg': 'mp3',
-    'video/mp4': 'mp4 video',
+    'video/mp4': 'MP4 video',
     'video/mpeg': 'mpeg',
     'video/3gp': '3gp',
+    'video/x-matroska': 'mkv',
     'application/pdf': 'pdf',
 }
 
@@ -29,12 +30,12 @@ const storage = multer.diskStorage({
             uploadError = null;
         }
 
-        if(FILE_TYPE[file.mimetype] == 'png' || 
+        if(FILE_TYPE[file.mimetype] == 'png' ||  
         FILE_TYPE[file.mimetype] == 'jpeg' || FILE_TYPE[file.mimetype] == 'jpg' ){
             cb(uploadError, 'public/upload/message/images');
         }
 
-        if(FILE_TYPE[file.mimetype] == 'mp4' || 
+        if(FILE_TYPE[file.mimetype] == 'mp4' || FILE_TYPE[file.mimetype] == 'MP4 video' || FILE_TYPE[file.mimetype] == 'mp4 video' || FILE_TYPE[file.mimetype] == 'mkv' || FILE_TYPE[file.mimetype] == 'MKV File' || 
         FILE_TYPE[file.mimetype] == 'mpeg' || FILE_TYPE[file.mimetype] == '3pg' ){
             cb(uploadError, 'public/upload/message/videoMessage');
         }
@@ -49,9 +50,9 @@ const storage = multer.diskStorage({
     },
 
     filename: function (req, file, cb){
-        const fileName = file.originalname.replace(' ','-').replace('.','-');
+      const fileName = file.originalname.replace(' ','-').replace('.','-');
       const extension = FILE_TYPE[file.mimetype];
-      cb(null, `${fileName}-${Date.now()}.${extension}`)
+      cb(null, `${fileName}-${Date.now()}.${extension}`);
     }
 })
 
@@ -72,7 +73,7 @@ router.post(`/`, cpUpload, async (req, res) => {
         }
 
     if (msExt == 'mp4 video' || msExt == 'MP4 video' || msExt == 'MP4'|| 
-    msExt == 'mp4' || msExt == 'mpeg' || msExt == '3gp'){
+    msExt == 'mp4' || msExt == 'mpeg' || msExt == '3gp' || msExt == 'mkv' || msExt == 'mkv video'){
          filePath = `${req.protocol}://${req.get('host')}/public/upload/message/videoMessage`
     }
 
@@ -100,6 +101,8 @@ router.post(`/`, cpUpload, async (req, res) => {
                 response: "couldn't create message",
                 error: err})
         })
+
+        
 })
 
 router.get(`/:id`, async (req, res) => {
