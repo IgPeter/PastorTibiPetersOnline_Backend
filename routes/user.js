@@ -357,7 +357,6 @@ router.patch(`/freeTrial/:id`, async (req, res) => {
 })
 
 router.patch(`/unsubscribe/:id`, async (req, res)=> {
-    console.log(req);
     const user_id = req.params.id;
     const secret = process.env.SECRET_KEY;
 
