@@ -165,7 +165,7 @@ res.status(401).json('This admin already exist')
 
 
 //Login
-router.post(`/login`, changeSubStatus, async (req, res)=> {
+router.post(`/login`, async (req, res)=> {
 
     const secret = process.env.SECRET_KEY;
     const user = await User.findOne({email: req.body.email})
@@ -349,16 +349,42 @@ router.patch(`/freeTrial/:id`, async (req, res) => {
     
     res.status(200).json({
         message: 'User data updated successfully',
-        updatedUser:{
-            name: updatedUser.firstName + " " + updatedUser.lastName,
-            token: token,
-            email: updatedUser.email,
-            avatar: updatedUser.avatar
-           } 
-        })
+        updatedUser: updatedUser
+    })
 }catch(error){
     console.log(error);
 }
+})
+
+router.patch(`/unsubscribe/:id`, async (req, res)=> {
+    console.log(req);
+    const user_id = req.params.id;
+    const secret = process.env.SECRET_KEY;
+
+    try {
+        const unsubscribedUser = await User.findByIdAndUpdate(user_id, {isSubscriber: false, subscription: {}},
+            {lean: true, returnDocument: 'after'});
+
+            if(!unsubscribedUser){
+                res.status(404).json('User not found')
+            }
+            console.log('I updated unsubscribed User');
+
+            console.log(res);
+        const token = jwt.sign({
+            userId: unsubscribedUser.id,
+            isAdmin: unsubscribedUser.isAdmin,
+            isSubscriber: unsubscribedUser.isSubscriber
+        }, secret , {expiresIn: '1d'})
+
+        res.status(200).json({
+            message: 'succeeded at unsubscribing user!',
+            token: token,
+            unsubscribedUser: unsubscribedUser
+        })
+    }catch(error){
+        console.log(error);
+    }
 })
 
 router.delete(`/:id`, async (req, res) => {
