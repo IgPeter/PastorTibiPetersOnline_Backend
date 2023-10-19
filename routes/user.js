@@ -135,7 +135,7 @@ router.post(`/`, upload.single('avatar'), async (req, res) => {
         isAdmin: req.body.isAdmin,
         country: req.body.country,
         phone: req.body.phone,
-        avatar: `${filePath}${fileName}` //http://localhost:3000/public/upload/filename
+        avatar: `${filePath}/${fileName}` //http://localhost:3000/public/upload/filename
     })
 
     await user.save().then(user=>{
