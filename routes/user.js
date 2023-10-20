@@ -368,6 +368,7 @@ router.patch(`/unsubscribe/:id`, async (req, res)=> {
             console.log(res);
         const token = jwt.sign({
             userId: unsubscribedUser._id,
+            subscriberStatus: 'unsubscribed',
             isAdmin: unsubscribedUser.isAdmin,
             isSubscriber: unsubscribedUser.isSubscriber
         }, secret , {expiresIn: '1d'})
