@@ -309,14 +309,9 @@ router.patch(`/subscribe/:id`, async (req, res) => {
     
     res.status(200).json({
         message: 'User data updated successfully',
-        updatedUser:{
-            name: updatedUser.firstName + " " + updatedUser.lastName,
-            token: token,
-            email: updatedUser.email,
-            avatar: updatedUser.avatar,
-            subscription: updatedUser.subscription
-           } 
-        })
+        token: token,
+        updatedUser: updatedUser
+    })
 }catch(error){
     console.log(error);
 }
@@ -349,6 +344,7 @@ router.patch(`/freeTrial/:id`, async (req, res) => {
     
     res.status(200).json({
         message: 'User data updated successfully',
+        token: token,
         updatedUser: updatedUser
     })
 }catch(error){
