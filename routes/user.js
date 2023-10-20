@@ -266,7 +266,7 @@ router.patch(`/:id`, upload.single('avatar'), async (req, res) => {
     const fileName = req.file.filename;
     const filePath =`${req.protocol}://${req.get('host')}/public/upload/user/images`
 
-    req.body.avatar = `${filePath}${fileName}`
+    req.body.avatar = `${filePath}/${fileName}`
 
     await User.updateMany({_id : user_id}, {$set: req.body})
     .then(updatedUser => {
@@ -302,7 +302,7 @@ router.patch(`/subscribe/:id`, async (req, res) => {
     }
     
     const token = jwt.sign({
-        userId: updatedUser.id,
+        userId: updatedUser._id,
         isAdmin: updatedUser.isAdmin,
         isSubscriber: updatedUser.isSubscriber
     }, secret , {expiresIn: '1d'})
@@ -337,7 +337,7 @@ router.patch(`/freeTrial/:id`, async (req, res) => {
     }
     
     const token = jwt.sign({
-        userId: updatedUser.id,
+        userId: updatedUser._id,
         isAdmin: updatedUser.isAdmin,
         isSubscriber: updatedUser.isSubscriber
     }, secret , {expiresIn: '1d'})
@@ -367,7 +367,7 @@ router.patch(`/unsubscribe/:id`, async (req, res)=> {
 
             console.log(res);
         const token = jwt.sign({
-            userId: unsubscribedUser.id,
+            userId: unsubscribedUser._id,
             isAdmin: unsubscribedUser.isAdmin,
             isSubscriber: unsubscribedUser.isSubscriber
         }, secret , {expiresIn: '1d'})
