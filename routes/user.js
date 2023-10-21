@@ -38,7 +38,6 @@ const storage = multer.diskStorage({
 
 //Used for all users with full user information
 router.post(`/register`, upload.single('avatar'), async (req, res) => {
-    console.log(req.body);
     const existingUser = await User.findOne({email: req.body.email});
 
     if(existingUser){
@@ -55,7 +54,7 @@ router.post(`/register`, upload.single('avatar'), async (req, res) => {
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 10),
         country: req.body.country,
-        subscription: {},
+        subscription: {subscriberStatus: 'New User'},
         phone: req.body.phone,
         avatar: `${filePath}${fileName}` //http://localhost:3000/public/upload/filename
     })
