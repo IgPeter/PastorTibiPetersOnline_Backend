@@ -178,6 +178,7 @@ router.post(`/login`, async (req, res)=> {
         const token = jwt.sign({
                 userId: user.id,
                 isAdmin: user.isAdmin,
+                subscriberStatus: {},
                 isSubscriber: user.isSubscriber
             }, secret , {expiresIn: '1d'})
                 
@@ -304,6 +305,7 @@ router.patch(`/subscribe/:id`, async (req, res) => {
     const token = jwt.sign({
         userId: updatedUser._id,
         isAdmin: updatedUser.isAdmin,
+        subscriberStatus: 'subscribed',
         isSubscriber: updatedUser.isSubscriber
     }, secret , {expiresIn: '1d'})
     
@@ -339,6 +341,7 @@ router.patch(`/freeTrial/:id`, async (req, res) => {
     const token = jwt.sign({
         userId: updatedUser._id,
         isAdmin: updatedUser.isAdmin,
+        subscriberStatus: 'Free Trial',
         isSubscriber: updatedUser.isSubscriber
     }, secret , {expiresIn: '1d'})
     
