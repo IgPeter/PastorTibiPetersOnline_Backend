@@ -322,13 +322,13 @@ router.patch(`/freeTrial/:id`, async (req, res) => {
     const user_id = req.params.id;
     const secret = process.env.SECRET_KEY;
 
-    const {freeTrial} = req.body;
+    //const {freeTrial} = req.body;
 
    try{
     const updatedUser = await User.findByIdAndUpdate(user_id, 
         {
             isSubscriber: true,
-            subscription: freeTrial
+            subscription: req.body
         }, 
         {lean: true, returnDocument: 'after'})
 
@@ -357,15 +357,15 @@ router.patch(`/unsubscribe/:id`, async (req, res)=> {
     const secret = process.env.SECRET_KEY;
 
     try {
-        const unsubscribedUser = await User.findByIdAndUpdate(user_id, {isSubscriber: false, subscription: {}},
-            {lean: true, returnDocument: 'after'});
+        const unsubscribedUser = await User.findByIdAndUpdate(user_id, 
+        {isSubscriber: false, subscription: {subscriberStatus:'unsubscribed'}},
+        {lean: true, returnDocument: 'after'});
 
             if(!unsubscribedUser){
                 res.status(404).json('User not found')
             }
             console.log('I updated unsubscribed User');
 
-            console.log(res);
         const token = jwt.sign({
             userId: unsubscribedUser._id,
             subscriberStatus: 'unsubscribed',

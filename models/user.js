@@ -14,7 +14,7 @@ const userSchema = mongoose.Schema({
         desc: {type: String},
         price: {type: Number},
         dateSubscribed: {type: Date},
-        numOfDays: {type: Number}
+        subscriberStatus: {type: String}
     },
     phone: Number,
     avatar: String
