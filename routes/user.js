@@ -55,6 +55,7 @@ router.post(`/register`, upload.single('avatar'), async (req, res) => {
         email: req.body.email,
         password: bcrypt.hashSync(req.body.password, 10),
         country: req.body.country,
+        subscription: {},
         phone: req.body.phone,
         avatar: `${filePath}${fileName}` //http://localhost:3000/public/upload/filename
     })
