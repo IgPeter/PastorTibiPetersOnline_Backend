@@ -325,13 +325,13 @@ router.patch(`/freeTrial/:id`, async (req, res) => {
     const user_id = req.params.id;
     const secret = process.env.SECRET_KEY;
 
-    //const {freeTrial} = req.body;
+    const {freeTrial} = req.body;
 
    try{
     const updatedUser = await User.findByIdAndUpdate(user_id, 
         {
             isSubscriber: true,
-            subscription: req.body
+            subscription: freeTrial
         }, 
         {lean: true, returnDocument: 'after'})
 
