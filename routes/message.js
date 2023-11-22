@@ -170,7 +170,7 @@ router.get(`/featured/:count`, async (req, res) => {
 router.patch(`/:id`, cpUpload, async (req, res) => {
 
     if(Object.entries(req.files) === 0){
-        const imageFilePath = `${req.protocol}://${req.get('host')}/public/upload/message/images`;
+        const imageFilePath = `https://${req.get('host')}/public/upload/message/images`;
         let filePath;
         const image_fileName = req.files.image[0].filename;
         const message_fileName = req.files.message[0].filename;
