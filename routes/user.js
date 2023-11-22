@@ -5,8 +5,6 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const multer = require('multer');
-const {changeSubStatus} = require('../helpers/unSubscribe')
-
 
 //Getting the mimetype
 const fileExtension = {
@@ -45,7 +43,7 @@ router.post(`/register`, upload.single('avatar'), async (req, res) => {
     }
 
     const fileName = req.file.filename;
-    const filePath =`${req.protocol}://${req.get('host')}/public/upload/user/images`
+    const filePath =`https://${req.get('host')}/public/upload/user/images`
 
     const user = new User({
         _id: new mongoose.Types.ObjectId(),
@@ -289,13 +287,13 @@ router.patch(`/subscribe/:id`, async (req, res) => {
     const user_id = req.params.id;
     const secret = process.env.SECRET_KEY;
 
-    const {subscription} = req.body;
+    //const {subscription} = req.body;
 
    try{
     const updatedUser = await User.findByIdAndUpdate(user_id, 
         {
             isSubscriber: true,
-            subscription: subscription
+            subscription: req.body
         }, 
         {lean: true, returnDocument: 'after'})
 

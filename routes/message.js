@@ -62,23 +62,23 @@ const cpUpload = fileUpload.fields([{ name: 'message', maxCount: 1 }, { name: 'i
 
 //Contains all the message related routes
 router.post(`/`, cpUpload, async (req, res) => {
-    const imageFilePath = `${req.protocol}://${req.get('host')}/public/upload/message/images`;
+    const imageFilePath = `https://${req.get('host')}/public/upload/message/images`;
     let filePath;
     const image_fileName = req.files.image[0].filename;
     const message_fileName = req.files.message[0].filename;
     const msExt = FILE_TYPE[req.files.message[0].mimetype];
 
     if (msExt == 'mp4 audio' || msExt == 'mp3'){
-         filePath = `${req.protocol}://${req.get('host')}/public/upload/message/audioMessages`
+         filePath = `https://${req.get('host')}/public/upload/message/audioMessages`
         }
 
     if (msExt == 'mp4 video' || msExt == 'MP4 video' || msExt == 'MP4'|| 
     msExt == 'mp4' || msExt == 'mpeg' || msExt == '3gp' || msExt == 'mkv' || msExt == 'MKV File'){
-         filePath = `${req.protocol}://${req.get('host')}/public/upload/message/videoMessage`
+         filePath = `https://${req.get('host')}/public/upload/message/videoMessage`
     }
 
     if(msExt == 'pdf'){
-         filePath = `${req.protocol}://${req.get('host')}/public/upload/message/books`
+         filePath = `https://${req.get('host')}/public/upload/message/books`
     }
 
     const message = new Message({
@@ -177,15 +177,15 @@ router.patch(`/:id`, cpUpload, async (req, res) => {
         const msExt = FILE_TYPE[req.files.message[0].mimetype];
 
     if (msExt == 'mp4 audio' || msExt == 'mp3'){
-         filePath = `${req.protocol}://${req.get('host')}/public/upload/message/audioMessages`
+         filePath = `https://${req.get('host')}/public/upload/message/audioMessages`
         }
 
     if (msExt == 'mp4' || msExt == 'mpeg' || msExt == '3gp'){
-         filePath = `${req.protocol}://${req.get('host')}/public/upload/message/videoMessage`
+         filePath = `https://${req.get('host')}/public/upload/message/videoMessage`
     }
 
     if(msExt == 'pdf'){
-         filePath = `${req.protocol}://${req.get('host')}/public/upload/message/books`
+         filePath = `https://${req.get('host')}/public/upload/message/books`
     }
 
     }
