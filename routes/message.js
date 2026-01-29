@@ -4,7 +4,9 @@ const mongoose = require('mongoose');
 const {Message} = require('../models/message');
 const {Category} = require('../models/category');
 const multer = require('multer');
-const {authJwt} = require('../helpers/jwt'); 
+const {verifyToken} = require('../helpers/auth');
+const isAdmin = require('../helpers/isAdmin');
+
 
 //Getting the mimetype
 const FILE_TYPE = {
@@ -23,7 +25,9 @@ const FILE_TYPE = {
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb){
+        
         const isValid = FILE_TYPE[file.mimetype];
+
         let uploadError = new Error('Invalid file type')
         
         if(isValid){
@@ -50,6 +54,7 @@ const storage = multer.diskStorage({
     },
 
     filename: function (req, file, cb){
+
       const fileName = file.originalname.replace(' ','-').replace('.','-');
       const extension = FILE_TYPE[file.mimetype];
       cb(null, `${fileName}-${Date.now()}.${extension}`);
@@ -61,8 +66,11 @@ const fileUpload = multer({storage: storage});
 const cpUpload = fileUpload.fields([{ name: 'message', maxCount: 1 }, { name: 'image', maxCount: 1 }])
 
 //Contains all the message related routes
-router.post(`/`, cpUpload, async (req, res) => {
+
+router.post(`/`, verifyToken, isAdmin, cpUpload, async (req, res) => {
+
     const imageFilePath = `https://${req.get('host')}/public/upload/message/images`;
+
     let filePath;
     const image_fileName = req.files.image[0].filename;
     const message_fileName = req.files.message[0].filename;
@@ -100,9 +108,7 @@ router.post(`/`, cpUpload, async (req, res) => {
              res.status(400).json({
                 response: "couldn't create message",
                 error: err})
-        })
-
-        
+        })    
 })
 
 router.get(`/:id`, async (req, res) => {
@@ -115,6 +121,7 @@ router.get(`/:id`, async (req, res) => {
 
     res.status(200).json({success: singleMessage})
 })
+
 
 router.get(`/`, async (req, res)=> {
 

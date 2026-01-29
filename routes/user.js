@@ -84,35 +84,29 @@ router.post(`/register`, upload.single('avatar'), async (req, res) => {
 //Resgister with only email and password
 router.post('/quickRegister', async (req, res)=> {
     const existingUser = await User.findOne({email: req.body.email});
-    if(!existingUser){
+    
+    if(existingUser){  
+        return res.status(401).send('User already exists');
+    }
+
     const user = new User({
         _id: new mongoose.Types.ObjectId(),
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
         email: req.body.email,
-        password: bcrypt.hashSync(req.body.password, 10)
+        password: bcrypt.hashSync(req.body.password, 10),
+        country: req.body.country
     })
 
-    await user.save().then(user => {
-        const response = {
-            _id: user._id,
-            email: user.email,
-            password: user.password,
-            id: user.id,
-            request: {
-                type: 'POST',
-                url: 'localhost:3000/api/v1/user',
-                desc: 'creating user with only email and password'
-            }
-        }
-        return res.status(200).json(response)
-    }).catch(err => {
-        res.status(500).json({
-            error: err,
-            message: "Failed operation"
-        })
-    })
-}
-res.status(401).json('User already exist');
-
+    try {
+        const createdUser = await user.save();
+        
+        return res.status(200).json({message: "Registration was successful",
+            createdUser: createdUser
+        });
+    }catch(err){
+        res.status(500).json({error: err, message: "Failed operation"});
+    }
 })
 
 
@@ -157,20 +151,20 @@ router.post(`/`, upload.single('avatar'), async (req, res) => {
         res.send('user was not created')
         console.log(err);s
     })
+}else {
+    res.status(401).json('This admin already exist')
 }
-res.status(401).json('This admin already exist')
-
 })
 
 
 //Login
 router.post(`/login`, async (req, res)=> {
-
+    
     const secret = process.env.SECRET_KEY;
     const user = await User.findOne({email: req.body.email})
 
     if(!user){
-        return res.status(404).json('The user was not found');
+        return res.status(404).json({message: 'The user was not found'});
     }
             
     if(user && bcrypt.compareSync(req.body.password, user.password)){
@@ -182,11 +176,11 @@ router.post(`/login`, async (req, res)=> {
             }, secret , {expiresIn: '1d'})
                 
             res.status(200).json({
-                    user: user,
-                    token: token
+                    token: token,
+                    user: user
                 });    
     }else{
-        res.status(401).json('password is wrong');
+        res.status(401).json({message: 'password is wrong'});
     }      
   })
 
@@ -248,16 +242,6 @@ router.get(`/:id`, async (req, res) => {
         })
     })
 
-})
-
-//Getting billers public keys
-router.get(`/biller/paystack`, (req, res)=> {
-    const paystackPublicKeys = process.env.PAYSTACK_PUBLIC_KEY
-    const paystackSecretKeys = process.env.PAYSTACK_SECRET_KEY
-
-    res.json({
-        paystackPublicKey: paystackPublicKeys
-    })
 })
 
 router.patch(`/:id`, upload.single('avatar'), async (req, res) => {

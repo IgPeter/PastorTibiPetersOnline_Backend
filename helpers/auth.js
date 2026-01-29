@@ -3,21 +3,24 @@ const jwt = require('jsonwebtoken');
 const verifyToken = (req, res, next) => {
 
     const secret = process.env.SECRET_KEY;
-    const api = process.env.API_URL;
-    const token = req.body.token || req.query.token || req.headers["x-access-token"];
+    
+    const token = req.body.token || req.query.token || req.headers['authorization'];
 
-    if(!token) {
-        return res.status(403).send("The user is unauthorized");
+    const splitToken = token.split(' ')[1]
+    
+    if(!splitToken) {
+        return res.status(403).send("This user is not authenticated");
     }
 
     try{ 
-        const verifiedToken =  jwt.verify(token, secret);
+        const verifiedToken =  jwt.verify(splitToken, secret);
         req.user = verifiedToken;
+        
     }catch(err){
         res.status(401).send('Invalid token');
     }
 
-    return next()
+    return next();
 }
 
 exports.verifyToken = verifyToken;
