@@ -8,6 +8,8 @@ const fs = require("fs");
 const multer = require("multer");
 const { verifyToken } = require("../helpers/auth");
 const isAdmin = require("../helpers/isAdmin");
+const QRCode = require("qrcode");
+const archiver = require("archiver");
 
 //Getting the mimetype
 const FILE_TYPE = {
@@ -172,7 +174,7 @@ router.get(`/`, async (req, res) => {
             contentType: eachMessage.contentType,
             request: {
               type: "GET",
-              Url: "localhost:3000/api/v1/message",
+              Url: `https://${req.get("host")}/api/v1/message`,
             },
           };
         }),
@@ -291,6 +293,107 @@ router.get("/download/campaign-files/:filename", (req, res) => {
 
   res.sendFile(filePath);
   // This automatically sets Content-Disposition: attachment
+});
+
+router.get("/qr-bundle-download/:bundleId", async (req, res) => {
+  // ... your bundles object ...
+
+  try {
+    const { bundleId } = req.params;
+    const files = bundles[bundleId];
+
+    if (!files || files.length === 0) {
+      return res.status(404).json({ message: "Bundle not found" });
+    }
+
+    const uploadsDir = path.join(__dirname, "../messagesSpreadTheWord");
+
+    // Very important headers
+    res.setHeader("Content-Type", "application/zip");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="spread-the-word-${bundleId}.zip"`,
+    );
+    // Optional but helps some aggressive caches / proxies
+    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+
+    const archive = archiver("zip", { zlib: { level: 9 } });
+
+    archive.on("error", (err) => {
+      console.error(err);
+      if (!res.headersSent) res.status(500).send("Archive error");
+    });
+
+    archive.pipe(res);
+
+    for (const file of files) {
+      const filePath = path.join(uploadsDir, file.name);
+
+      if (require("fs").existsSync(filePath)) {
+        console.log("Adding file:", filePath);
+        archive.file(filePath, { name: file.name });
+      } else {
+        console.warn("File missing:", filePath);
+        // You might want to continue or abort depending on requirements
+      }
+    }
+
+    archive.finalize();
+  } catch (err) {
+    console.error(err);
+    if (!res.headersSent) {
+      res.status(500).json({ message: "Bundle download failed" });
+    }
+  }
+});
+
+router.get("/qrcode/:bundleId", async (req, res) => {
+  try {
+    const { bundleId } = req.params;
+
+    // Your bundle validation (reuse or improve)
+    const bundles = {
+      spreadtheword: [
+        { id: "file1", name: "Judikay-Capable-God-CeeNaija.com_.mp3" },
+        { id: "file2", name: "Zoe_The_Life_Of_God.mp3" },
+      ],
+      // add others...
+    };
+
+    if (!bundles[bundleId]) {
+      return res.status(404).json({ message: "Bundle not found" });
+    }
+
+    const downloadUrl = `https://pastortibipeters.com/api/v1/message/qr-bundle-download/${bundleId}`;
+    // Use real domain! Or short domain if you have one
+
+    const buffer = await QRCode.toBuffer(downloadUrl, {
+      errorCorrectionLevel: "H", // High reliability — good for posters/flyers
+      type: "png",
+      quality: 0.95,
+      margin: 1,
+      color: {
+        dark: "#000000",
+        light: "#ffffff",
+      },
+      width: 500, // Bigger = better scan reliability
+    });
+
+    // Force download
+    res.setHeader("Content-Type", "image/png");
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="bundle-${bundleId}-qr.png"`,
+    );
+    res.setHeader("Cache-Control", "no-cache"); // Optional: prevent aggressive caching
+
+    res.send(buffer);
+  } catch (err) {
+    console.error("QR generation failed:", err);
+    res.status(500).json({ message: "Failed to generate QR code" });
+  }
 });
 
 module.exports = router;

@@ -15,6 +15,7 @@
   "author": "Igaga Peter",
   "license": "ISC",
   "dependencies": {
+    "archiver": "^7.0.1",
     "bcrypt": "^5.1.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
@@ -26,6 +27,7 @@
     "mongoose": "^7.0.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "nodemon": "^2.0.20"
+    "nodemon": "^2.0.20",
+    "qrcode": "^1.5.4"
   }
 }
