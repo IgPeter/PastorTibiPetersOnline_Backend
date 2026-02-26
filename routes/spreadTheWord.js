@@ -149,7 +149,7 @@ router.get("/qrcode/:bundleId", async (req, res) => {
 
 //enpoint to fetch all message files from local directory
 router.get("/files", (req, res) => {
-  const folderPath = path.join(process.cwd(), "messagesSpreadTheWord");
+  const folderPath = path.join(__dirname, "..", "messagesSpreadTheWord");
   let finalFiles = [];
 
   try {
