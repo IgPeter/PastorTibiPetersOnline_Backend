@@ -22,7 +22,7 @@ router.get("/download/campaign-files/:filename", (req, res) => {
   // This automatically sets Content-Disposition: attachment
 });
 
-router.get(`/createQrCode`, async (req, res) => {
+router.get(`/createqrcode`, async (req, res) => {
   try {
     const url = "https://pastortibipeters.com/spreadtheword";
 
