@@ -23,6 +23,7 @@ router.get("/download/campaign-files/:filename", (req, res) => {
 });
 
 router.get(`/createqrcode`, async (req, res) => {
+  console.log("I am in create qr code");
   try {
     const url = "https://pastortibipeters.com/spreadtheword";
 
@@ -37,6 +38,7 @@ router.get(`/createqrcode`, async (req, res) => {
       "Content-Disposition": "attachment; filename=spreadtheword-qr.png",
     });
 
+    console.log("sending response ...");
     res.send(qrBuffer);
   } catch (error) {
     console.error(error);
