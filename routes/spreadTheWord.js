@@ -24,7 +24,7 @@ router.get("/download/campaign-files/:filename", (req, res) => {
 
 router.get(`/createqrcode`, async (req, res) => {
   try {
-    const url = "https://pastortibipeters.online/spreadtheword";
+    const url = "https://pastortibipeters.com/spreadtheword";
 
     const qrBuffer = await QRCode.toBuffer(url, {
       type: "png",
