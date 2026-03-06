@@ -24,7 +24,7 @@ router.get("/download/campaign-files/:filename", (req, res) => {
 
 router.get(`/createqrcode`, async (req, res) => {
   try {
-    const url = "https://pastortibipeters.com/spreadtheword";
+    const url = "https://pastortibipeters.online/spreadtheword/week-two";
 
     const qrBuffer = await QRCode.toBuffer(url, {
       type: "png",
@@ -32,10 +32,19 @@ router.get(`/createqrcode`, async (req, res) => {
       margin: 2,
     });
 
-    res.set({
-      "Content-Type": "image/png",
-      "Content-Disposition": "attachment; filename=spreadtheword-qr.png",
-    });
+    if (url == "https://pastortibipeters.online/spreadtheword") {
+      res.set({
+        "Content-Type": "image/png",
+        "Content-Disposition":
+          "attachment; filename=spreadtheword-qr-week1.png",
+      });
+    } else if ("https://pastortibipeters.online/spreadtheword/week-two") {
+      res.set({
+        "Content-Type": "image/png",
+        "Content-Disposition":
+          "attachment; filename=spreadtheword-qr-week2.png",
+      });
+    }
 
     res.send(qrBuffer);
   } catch (error) {
@@ -149,7 +158,17 @@ router.get("/qrcode/:bundleId", async (req, res) => {
 
 //enpoint to fetch all message files from local directory
 router.get("/files", (req, res) => {
-  const folderPath = path.join(__dirname, "..", "messagesSpreadTheWord");
+  const week = req.query.week;
+  let folderPath;
+
+  if (!week) {
+    console.log("no week supplied", week);
+    folderPath = path.join(__dirname, "..", "messagesSpreadTheWord");
+  } else if (week.toLowerCase() == "two") {
+    console.log("week two");
+    folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek2");
+  }
+
   let finalFiles = [];
 
   try {

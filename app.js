@@ -44,7 +44,7 @@ app.use(`${api}/user`, userRouter);
 app.use(`${api}/category`, categoryRouter);
 app.use(`${api}/subscription`, subscriptionRouter);
 app.use(`${api}/paystack`, paystackRouter);
-app.use(`${api}/spreadtheWord`, spreadTheWordRouter);
+app.use(`${api}/spreadtheword`, spreadTheWordRouter);
 
 //connect to database
 mongoose
