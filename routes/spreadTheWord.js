@@ -158,7 +158,12 @@ router.get("/qrcode/:bundleId", async (req, res) => {
 
 //enpoint to fetch all message files from local directory
 router.get("/files", (req, res) => {
-  const week = req.query.week;
+  let week = req.query.week;
+
+  if (week) {
+    week = week.toString().trim().toLowerCase().replace("/", "");
+  }
+
   let folderPath;
 
   if (!week) {
@@ -203,21 +208,23 @@ router.get("/files", (req, res) => {
 
 //this endpoint will download the file
 router.get("/download/:filename", (req, res) => {
-  try {
-    const filePath = path.join(
-      process.cwd(),
-      "messagesSpreadTheWord",
-      req.params.filename,
-    );
+  const week = req.query.week;
 
-    if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ message: "File not found" });
-    }
+  let folderPath;
 
-    res.download(filePath); // forces browser download
-  } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+  if (!week) {
+    folderPath = path.join(process.cwd(), "messagesSpreadTheWord");
+  } else if (week.toLowerCase() === "two") {
+    folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek2");
   }
+
+  const filePath = path.join(folderPath, req.params.filename);
+
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ message: "File not found" });
+  }
+
+  res.download(filePath);
 });
 
 module.exports = router;
