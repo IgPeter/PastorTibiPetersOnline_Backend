@@ -158,6 +158,12 @@ router.get("/qrcode/:bundleId", async (req, res) => {
 
 //enpoint to fetch all message files from local directory
 router.get("/files", (req, res) => {
+  res.set({
+    "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+    Pragma: "no-cache",
+    Expires: "0",
+  });
+
   let week = req.query.week;
 
   if (week) {
