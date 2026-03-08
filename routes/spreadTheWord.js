@@ -24,7 +24,7 @@ router.get("/download/campaign-files/:filename", (req, res) => {
 
 router.get(`/createqrcode`, async (req, res) => {
   try {
-    const url = "https://pastortibipeters.online/spreadtheword/week-two";
+    const url = "https://pastortibipeters.com/spreadthewordweektwo/";
 
     const qrBuffer = await QRCode.toBuffer(url, {
       type: "png",
@@ -38,7 +38,7 @@ router.get(`/createqrcode`, async (req, res) => {
         "Content-Disposition":
           "attachment; filename=spreadtheword-qr-week1.png",
       });
-    } else if ("https://pastortibipeters.online/spreadtheword/week-two") {
+    } else if ("https://pastortibipeters.com/spreadthewordweektwo/") {
       res.set({
         "Content-Type": "image/png",
         "Content-Disposition":
