@@ -158,27 +158,43 @@ router.get("/qrcode/:bundleId", async (req, res) => {
 
 //enpoint to fetch all message files from local directory
 router.get("/files", (req, res) => {
-  res.set({
-    "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
-    Pragma: "no-cache",
-    Expires: "0",
-  });
+  let folderPath = path.join(__dirname, "..", "messagesSpreadTheWord");
 
-  let week = req.query.week;
+  let finalFiles = [];
 
-  if (week) {
-    week = week.toString().trim().toLowerCase().replace("/", "");
+  try {
+    fs.readdir(folderPath, (err, files) => {
+      if (err) {
+        return res
+          .status(500)
+          .json({ message: "Unable to read folder", error: err.message });
+      }
+
+      files.forEach((file) => {
+        const filePath = path.join(folderPath, file);
+        const stats = fs.statSync(filePath);
+
+        if (stats.isFile()) {
+          finalFiles.push({
+            name: file,
+            size: stats.size,
+            dateModified: stats.mtime,
+          });
+        }
+      });
+
+      res.json({
+        files: finalFiles,
+      });
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
+});
 
-  let folderPath;
-
-  if (!week) {
-    console.log("no week supplied", week);
-    folderPath = path.join(__dirname, "..", "messagesSpreadTheWord");
-  } else if (week.toLowerCase() == "two") {
-    console.log("week two");
-    folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek2");
-  }
+//endpoint for week two
+router.get("/files/week-two", (req, res) => {
+  const folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek2");
 
   let finalFiles = [];
 
@@ -214,15 +230,19 @@ router.get("/files", (req, res) => {
 
 //this endpoint will download the file
 router.get("/download/:filename", (req, res) => {
-  const week = req.query.week;
+  let folderPath = path.join(process.cwd(), "messagesSpreadTheWord");
 
-  let folderPath;
+  const filePath = path.join(folderPath, req.params.filename);
 
-  if (!week) {
-    folderPath = path.join(process.cwd(), "messagesSpreadTheWord");
-  } else if (week.toLowerCase() === "two") {
-    folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek2");
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).json({ message: "File not found" });
   }
+
+  res.download(filePath);
+});
+
+router.get("/download-weektwo/:filename", (req, res) => {
+  let folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek2");
 
   const filePath = path.join(folderPath, req.params.filename);
 
