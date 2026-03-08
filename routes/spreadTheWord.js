@@ -24,7 +24,7 @@ router.get("/download/campaign-files/:filename", (req, res) => {
 
 router.get(`/createqrcode`, async (req, res) => {
   try {
-    const url = "https://pastortibipeters.com/spreadthewordweektwo/";
+    const url = "https://pastortibipeters.online/spreadthewordweektwo/";
 
     const qrBuffer = await QRCode.toBuffer(url, {
       type: "png",
@@ -193,7 +193,7 @@ router.get("/files", (req, res) => {
 });
 
 //endpoint for week two
-router.get("/files/week-two", (req, res) => {
+/*router.get("/files/week-two", (req, res) => {
   const folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek2");
 
   let finalFiles = [];
@@ -226,7 +226,7 @@ router.get("/files/week-two", (req, res) => {
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
   }
-});
+});*/
 
 //this endpoint will download the file
 router.get("/download/:filename", (req, res) => {
@@ -241,7 +241,7 @@ router.get("/download/:filename", (req, res) => {
   res.download(filePath);
 });
 
-router.get("/download-weektwo/:filename", (req, res) => {
+/*router.get("/download-weektwo/:filename", (req, res) => {
   let folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek2");
 
   const filePath = path.join(folderPath, req.params.filename);
@@ -251,6 +251,6 @@ router.get("/download-weektwo/:filename", (req, res) => {
   }
 
   res.download(filePath);
-});
+});*/
 
 module.exports = router;

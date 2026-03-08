@@ -10,6 +10,7 @@ const categoryRouter = require("./routes/category");
 const subscriptionRouter = require("./routes/subscription");
 const paystackRouter = require("./routes/paystack");
 const spreadTheWordRouter = require("./routes/spreadTheWord");
+const spreadTheWordRouterWeekTwo = require("./routes/spreadthewordweektwo");
 require("dotenv/config");
 const errorHandler = require("./helpers/error-handling");
 const cors = require("cors");
@@ -17,7 +18,8 @@ const cors = require("cors");
 const api = process.env.API_URL;
 const PORT = process.env.PORT;
 
-const webPath = path.join(__dirname, "dist");
+const webPathWeekOne = path.join(__dirname, "dist-spreadtheword");
+const webPathWeekTwo = path.join(__dirname, "dist-spreadthewordweektwo");
 
 //middlewares
 app.use(morgan("tiny"));
@@ -30,11 +32,16 @@ app.options("*", cors());
 app.use("/public/upload", express.static(__dirname + "/public/upload"));
 
 // serve static assets
-app.use("/spreadtheword", express.static(webPath));
+app.use("/spreadtheword", express.static(webPathWeekOne));
+app.use("/spreadthewordweektwo", express.static(webPathWeekTwo));
 
 // SPA fallback for React routing
 app.get("/spreadtheword/*", (req, res) => {
-  res.sendFile(path.join(webPath, "index.html"));
+  res.sendFile(path.join(webPathWeekOne, "index.html"));
+});
+
+app.get("/spreadthewordweektwo/*", (req, res) => {
+  res.sendFile(path.join(webPathWeekTwo, "index.html"));
 });
 
 app.use(errorHandler);
@@ -44,7 +51,8 @@ app.use(`${api}/user`, userRouter);
 app.use(`${api}/category`, categoryRouter);
 app.use(`${api}/subscription`, subscriptionRouter);
 app.use(`${api}/paystack`, paystackRouter);
-app.use(`${api}/spreadthewordweektwo`, spreadTheWordRouter);
+app.use(`${api}/spreadtheword`, spreadTheWordRouter);
+app.use(`${api}/spreadthewordweektwo`, spreadTheWordRouterWeekTwo);
 
 //connect to database
 mongoose
