@@ -20,6 +20,7 @@ const PORT = process.env.PORT;
 
 const webPathWeekOne = path.join(__dirname, "dist-spreadtheword");
 const webPathWeekTwo = path.join(__dirname, "dist-spreadthewordweektwo");
+const webPathWeekThree = path.join(__dirname, "dist-spreadthewordweekthree");
 
 //middlewares
 app.use(morgan("tiny"));
@@ -34,6 +35,7 @@ app.use("/public/upload", express.static(__dirname + "/public/upload"));
 // serve static assets
 app.use("/spreadtheword", express.static(webPathWeekOne));
 app.use("/spreadthewordweektwo", express.static(webPathWeekTwo));
+app.use("/spreadthewordweekthree", express.static(webPathWeekThree));
 
 // SPA fallback for React routing
 app.get("/spreadtheword/*", (req, res) => {
@@ -41,6 +43,10 @@ app.get("/spreadtheword/*", (req, res) => {
 });
 
 app.get("/spreadthewordweektwo/*", (req, res) => {
+  res.sendFile(path.join(webPathWeekTwo, "index.html"));
+});
+
+app.get("/spreadthewordweekthree/*", (req, res) => {
   res.sendFile(path.join(webPathWeekTwo, "index.html"));
 });
 

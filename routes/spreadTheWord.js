@@ -24,7 +24,7 @@ router.get("/download/campaign-files/:filename", (req, res) => {
 
 router.get(`/createqrcode`, async (req, res) => {
   try {
-    const url = "https://pastortibipeters.online/spreadthewordweektwo/";
+    const url = "https://pastortibipeters.online/spreadthewordweekthree/";
 
     const qrBuffer = await QRCode.toBuffer(url, {
       type: "png",
@@ -38,11 +38,17 @@ router.get(`/createqrcode`, async (req, res) => {
         "Content-Disposition":
           "attachment; filename=spreadtheword-qr-week1.png",
       });
-    } else if ("https://pastortibipeters.com/spreadthewordweektwo/") {
+    } else if (url == "https://pastortibipeters.com/spreadthewordweektwo/") {
       res.set({
         "Content-Type": "image/png",
         "Content-Disposition":
           "attachment; filename=spreadtheword-qr-week2.png",
+      });
+    } else if (url == "https://pastortibipeters.com/spreadthewordweekthree/") {
+      res.set({
+        "Content-Type": "image/png",
+        "Content-Disposition":
+          "attachment; filename=spreadtheword-qr-week3.png",
       });
     }
 
@@ -157,8 +163,19 @@ router.get("/qrcode/:bundleId", async (req, res) => {
 });
 
 //enpoint to fetch all message files from local directory
-router.get("/files", (req, res) => {
-  let folderPath = path.join(__dirname, "..", "messagesSpreadTheWord");
+router.get("/files/:week", (req, res) => {
+  const week = req.params.week;
+  let folderPath;
+
+  console.log(week);
+
+  if (week == "week-one") {
+    folderPath = path.join(__dirname, "..", "messagesSpreadTheWord");
+  } else if (week == "week-two") {
+    folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek2");
+  } else if (week == "week-three") {
+    folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek3");
+  }
 
   let finalFiles = [];
 
@@ -229,8 +246,17 @@ router.get("/files", (req, res) => {
 });*/
 
 //this endpoint will download the file
-router.get("/download/:filename", (req, res) => {
-  let folderPath = path.join(process.cwd(), "messagesSpreadTheWord");
+router.get("/download/:week/:filename", (req, res) => {
+  let week = req.params.week;
+  let folderPath;
+
+  if (week == "week-one") {
+    folderPath = path.join(process.cwd(), "messagesSpreadTheWord");
+  } else if (week == "week-two") {
+    folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek2");
+  } else if (week == "week-three") {
+    folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek3");
+  }
 
   const filePath = path.join(folderPath, req.params.filename);
 
