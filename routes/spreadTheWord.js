@@ -167,8 +167,6 @@ router.get("/files/:week", (req, res) => {
   const week = req.params.week;
   let folderPath;
 
-  console.log(week);
-
   if (week == "week-one") {
     folderPath = path.join(__dirname, "..", "messagesSpreadTheWord");
   } else if (week == "week-two") {

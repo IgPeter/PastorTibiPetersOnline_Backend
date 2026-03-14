@@ -47,7 +47,7 @@ app.get("/spreadthewordweektwo/*", (req, res) => {
 });
 
 app.get("/spreadthewordweekthree/*", (req, res) => {
-  res.sendFile(path.join(webPathWeekTwo, "index.html"));
+  res.sendFile(path.join(webPathWeekThree, "index.html"));
 });
 
 app.use(errorHandler);
