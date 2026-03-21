@@ -24,7 +24,7 @@ router.get("/download/campaign-files/:filename", (req, res) => {
 
 router.get(`/createqrcode`, async (req, res) => {
   try {
-    const url = "https://pastortibipeters.online/spreadthewordweekthree/";
+    const url = "https://pastortibipeters.online/spreadthewordweekfour/";
 
     const qrBuffer = await QRCode.toBuffer(url, {
       type: "png",
@@ -32,23 +32,31 @@ router.get(`/createqrcode`, async (req, res) => {
       margin: 2,
     });
 
-    if (url == "https://pastortibipeters.online/spreadtheword") {
+    if (url == "https://pastortibipeters.online/spreadtheword/") {
       res.set({
-        "Content-Type": "image/png",
+        "Content-Type": "image/jpg",
         "Content-Disposition":
-          "attachment; filename=spreadtheword-qr-week1.png",
+          "attachment; filename=spreadtheword-qr-week1.jpg",
       });
     } else if (url == "https://pastortibipeters.com/spreadthewordweektwo/") {
       res.set({
-        "Content-Type": "image/png",
+        "Content-Type": "image/jpg",
         "Content-Disposition":
-          "attachment; filename=spreadtheword-qr-week2.png",
+          "attachment; filename=spreadtheword-qr-week2.jpg",
       });
     } else if (url == "https://pastortibipeters.com/spreadthewordweekthree/") {
       res.set({
-        "Content-Type": "image/png",
+        "Content-Type": "image/jpg",
         "Content-Disposition":
-          "attachment; filename=spreadtheword-qr-week3.png",
+          "attachment; filename=spreadtheword-qr-week3.jpg",
+      });
+    } else if (
+      url == "https://pastortibipeters.online/spreadthewordweekfour/"
+    ) {
+      res.set({
+        "Content-Type": "image/jpg",
+        "Content-Disposition":
+          "attachment; filename=spreadtheword-qr-week4.jpg",
       });
     }
 
@@ -56,109 +64,6 @@ router.get(`/createqrcode`, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "QR Code generation failed" });
-  }
-});
-
-//download campaign messages in archive
-router.get("/qr-bundle-download/:bundleId", async (req, res) => {
-  // ... your bundles object ...
-
-  try {
-    const { bundleId } = req.params;
-    const files = bundles[bundleId];
-
-    if (!files || files.length === 0) {
-      return res.status(404).json({ message: "Bundle not found" });
-    }
-
-    const uploadsDir = path.join(__dirname, "../messagesSpreadTheWord");
-
-    // Very important headers
-    res.setHeader("Content-Type", "application/zip");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="spread-the-word-${bundleId}.zip"`,
-    );
-    // Optional but helps some aggressive caches / proxies
-    res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
-    res.setHeader("Pragma", "no-cache");
-    res.setHeader("Expires", "0");
-
-    const archive = archiver("zip", { zlib: { level: 9 } });
-
-    archive.on("error", (err) => {
-      console.error(err);
-      if (!res.headersSent) res.status(500).send("Archive error");
-    });
-
-    archive.pipe(res);
-
-    for (const file of files) {
-      const filePath = path.join(uploadsDir, file.name);
-
-      if (require("fs").existsSync(filePath)) {
-        console.log("Adding file:", filePath);
-        archive.file(filePath, { name: file.name });
-      } else {
-        console.warn("File missing:", filePath);
-        // You might want to continue or abort depending on requirements
-      }
-    }
-
-    archive.finalize();
-  } catch (err) {
-    console.error(err);
-    if (!res.headersSent) {
-      res.status(500).json({ message: "Bundle download failed" });
-    }
-  }
-});
-
-//create qr code and download messages
-router.get("/qrcode/:bundleId", async (req, res) => {
-  try {
-    const { bundleId } = req.params;
-
-    // Your bundle validation (reuse or improve)
-    const bundles = {
-      spreadtheword: [
-        { id: "file1", name: "Judikay-Capable-God-CeeNaija.com_.mp3" },
-        { id: "file2", name: "Zoe_The_Life_Of_God.mp3" },
-      ],
-      // add others...
-    };
-
-    if (!bundles[bundleId]) {
-      return res.status(404).json({ message: "Bundle not found" });
-    }
-
-    const downloadUrl = `https://pastortibipeters.com/api/v1/message/qr-bundle-download/${bundleId}`;
-    // Use real domain! Or short domain if you have one
-
-    const buffer = await QRCode.toBuffer(downloadUrl, {
-      errorCorrectionLevel: "H", // High reliability — good for posters/flyers
-      type: "png",
-      quality: 0.95,
-      margin: 1,
-      color: {
-        dark: "#000000",
-        light: "#ffffff",
-      },
-      width: 500, // Bigger = better scan reliability
-    });
-
-    // Force download
-    res.setHeader("Content-Type", "image/png");
-    res.setHeader(
-      "Content-Disposition",
-      `attachment; filename="bundle-${bundleId}-qr.png"`,
-    );
-    res.setHeader("Cache-Control", "no-cache"); // Optional: prevent aggressive caching
-
-    res.send(buffer);
-  } catch (err) {
-    console.error("QR generation failed:", err);
-    res.status(500).json({ message: "Failed to generate QR code" });
   }
 });
 
@@ -173,6 +78,8 @@ router.get("/files/:week", (req, res) => {
     folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek2");
   } else if (week == "week-three") {
     folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek3");
+  } else if (week == "week-four") {
+    folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek4");
   }
 
   let finalFiles = [];
@@ -254,6 +161,8 @@ router.get("/download/:week/:filename", (req, res) => {
     folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek2");
   } else if (week == "week-three") {
     folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek3");
+  } else if (week == "week-four") {
+    folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek4");
   }
 
   const filePath = path.join(folderPath, req.params.filename);
