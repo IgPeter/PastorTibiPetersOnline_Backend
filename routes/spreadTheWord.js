@@ -24,7 +24,7 @@ router.get("/download/campaign-files/:filename", (req, res) => {
 
 router.get(`/createqrcode`, async (req, res) => {
   try {
-    const url = "https://pastortibipeters.online/spreadthewordweekfour/";
+    const url = "https://pastortibipeters.online/spreadthewordweekfive/";
 
     const qrBuffer = await QRCode.toBuffer(url, {
       type: "png",
@@ -58,6 +58,14 @@ router.get(`/createqrcode`, async (req, res) => {
         "Content-Disposition":
           "attachment; filename=spreadtheword-qr-week4.jpg",
       });
+    } else if (
+      url == "https://pastortibipeters.online/spreadthewordweekfive/"
+    ) {
+      res.set({
+        "Content-Type": "image/jpg",
+        "Content-Disposition":
+          "attachment; filename=spreadtheword-qr-week5.jpg",
+      });
     }
 
     res.send(qrBuffer);
@@ -80,6 +88,8 @@ router.get("/files/:week", (req, res) => {
     folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek3");
   } else if (week == "week-four") {
     folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek4");
+  } else if (week == "week-five") {
+    folderPath = path.join(__dirname, "..", "messagesSpreadTheWordWeek5");
   }
 
   let finalFiles = [];
@@ -163,6 +173,8 @@ router.get("/download/:week/:filename", (req, res) => {
     folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek3");
   } else if (week == "week-four") {
     folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek4");
+  } else if (week == "week-five") {
+    folderPath = path.join(process.cwd(), "messagesSpreadTheWordWeek5");
   }
 
   const filePath = path.join(folderPath, req.params.filename);

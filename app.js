@@ -22,6 +22,7 @@ const webPathWeekOne = path.join(__dirname, "dist-spreadtheword");
 const webPathWeekTwo = path.join(__dirname, "dist-spreadthewordweektwo");
 const webPathWeekThree = path.join(__dirname, "dist-spreadthewordweekthree");
 const webPathWeekFour = path.join(__dirname, "dist-spreadthewordweekfour");
+const webPathWeekFive = path.join(__dirname, "dist-spreadthewordweekfive");
 
 //middlewares
 app.use(morgan("tiny"));
@@ -38,6 +39,7 @@ app.use("/spreadtheword", express.static(webPathWeekOne));
 app.use("/spreadthewordweektwo", express.static(webPathWeekTwo));
 app.use("/spreadthewordweekthree", express.static(webPathWeekThree));
 app.use("/spreadthewordweekfour", express.static(webPathWeekFour));
+app.use("/spreadthewordweekfive", express.static(webPathWeekFive));
 
 // SPA fallback for React routing
 app.get("/spreadtheword/*", (req, res) => {
@@ -54,6 +56,10 @@ app.get("/spreadthewordweekthree/*", (req, res) => {
 
 app.get("/spreadthewordweekfour/*", (req, res) => {
   res.sendFile(path.join(webPathWeekFour, "index.html"));
+});
+
+app.get("/spreadthewordweekfive/*", (req, res) => {
+  res.sendFile(path.join(webPathWeekFive, "index.html"));
 });
 
 app.use(errorHandler);
